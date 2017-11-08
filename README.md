@@ -18,11 +18,12 @@ A simple example of this is a robot possibly entering an unmapped area (e.g. par
 area). In this case, it makes sense to continue updating the particles in the mapped area with the normal (narrow) likelihood
 function, and on the other hand use a more wide likelihood function where the map is unknown or uncertain.
 
-On the other hand, the conditions can be used to decide that we should use a very discriminative likelihood function, if
+Likewise, the conditions can be used to decide that we should use a very discriminative likelihood function, if
 the model's uncertainty is low. 
 
 By defining multiple conditions and likelihoods for different
-sources of information, MHPF offers machinery to combine the weights so that only reliable-enough sources are used.
+sources of information, MHPF offers machinery to combine the weights so that only reliable-enough or otherwise
+suitable sources are used.
 
 ## Usage
 The tests contain a simple example on how to use MHPF
