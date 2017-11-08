@@ -27,7 +27,7 @@ suitable sources are used.
 
 ## Usage
 The tests contain a simple example on how to use MHPF
-in a non-linear toy context, where is is able to reduce the RMSE.
+in a non-linear toy context, where it is able to slightly reduce the RMSE.
 The code snippet below describes the high-level usage. 
 
 
