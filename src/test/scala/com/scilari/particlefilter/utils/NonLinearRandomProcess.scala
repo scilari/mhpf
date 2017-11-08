@@ -86,7 +86,7 @@ object  NonLinearRandomProcess{
     //println("measurements: " + process.measurements.mkString(" "))
 
     val process2 = new NonLinearRandomProcessGrowing(stepCount = 100)
-    println("states = " + process2.states.mkString("[", ",", ","))
+    println("states = " + process2.states.mkString("[", ",", "]"))
     //println("measurements: " + process2.measurements.mkString(" "))
 
   }
