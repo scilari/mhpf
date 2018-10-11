@@ -5,7 +5,7 @@ package com.scilari.particlefilter.mhpf
   * Created by iv on 8/12/2015.
   *
   * @param particleCount Number of particles
-  * @param functionsAndConditions Likelihood functions returning likelihoods as logaritmic values and conditions
+  * @param functionsAndConditions Likelihood functions returning likelihoods as logarithmic values and conditions
   *                               corresponding to the functions
   * @tparam ParticleT Particle parameter type
   */
