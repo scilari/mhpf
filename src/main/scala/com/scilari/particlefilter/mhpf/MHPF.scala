@@ -112,7 +112,7 @@ class MHPF[ParticleT](
     val combinedWeights: Seq[Double] = for{
       pi <- 0 until particleCount
     } yield {
-      val particleWeights = for(fi <- functionsAndConditions.indices) yield allWeights(fi)(pi)
+      val particleWeights = functionsAndConditions.indices.map{ allWeights(_)(pi) }
       particleWeights.product
     }
 
@@ -126,7 +126,7 @@ class MHPF[ParticleT](
     val name = "Monty Hall Particle filter \n"
     val condStrings = for(fi <- functionsAndConditions.indices) yield {
       val data = states(fi)
-      val s = data.filter { _.evalCount > 0 }
+      val s = data.filter{ _.evalCount > 0 }
       val sN = s.length
       val N = particleCount
       s"Condition/likelihood no $fi. Ratio w/ measurements: ${sN.toDouble/N}"
