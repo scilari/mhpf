@@ -4,11 +4,13 @@ organization := "com.scilari"
 
 version := "0.1-SNAPSHOT"
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.12.4"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
 publishMavenStyle := true
+
+crossScalaVersions := Seq("2.11.8", "2.12.4")
 
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
