@@ -32,7 +32,7 @@ class MHPF[ParticleT](
   reset()
 
 
-  def weights = combinedWeights
+  def weights: Seq[Double] = combinedWeights
 
   def reset(): Unit ={
     states = Array.fill[State](functionsAndConditions.size, particleCount)(new State())
@@ -101,7 +101,7 @@ class MHPF[ParticleT](
         }
       } else {
         // Subset weights sums to zero - fixing by resetting the corresponding weights
-        println(this + s"\n Normalizing subset (${fi}) weights (${sN}) failed (sums to zero). Resetting to 1/N.")
+        println(s"$this\n Normalizing subset ($fi) weights ($sN) failed (sums to zero). Resetting to 1/N.")
         reset(fi)
       }
     }
@@ -113,7 +113,7 @@ class MHPF[ParticleT](
       pi <- 0 until particleCount
     } yield {
       val particleWeights = for(fi <- functionsAndConditions.indices) yield allWeights(fi)(pi)
-      particleWeights.foldLeft(1.0)(_ * _)
+      particleWeights.product
     }
 
     // normalizing the final weights
@@ -127,9 +127,9 @@ class MHPF[ParticleT](
     val condStrings = for(fi <- functionsAndConditions.indices) yield {
       val data = states(fi)
       val s = data.filter { _.evalCount > 0 }
-      val sN = s.size
+      val sN = s.length
       val N = particleCount
-      "Condition/likelihood no " + fi + ". Ratio w measurements: " + (sN.toDouble/N)
+      s"Condition/likelihood no $fi. Ratio w/ measurements: ${sN.toDouble/N}"
     }
 
     name + condStrings.mkString("\n")
