@@ -2,12 +2,12 @@ package com.scilari.particlefilter.utils
 
 /**
   * This is the non-linear random process presented e.g. in Arulampalam Particle Filter Tutorial
-  * @param stepCount
-  * @param initialState
-  * @param devMotion
-  * @param devMeasurement
-  * @param devMeasurementLarge
-  * @param smallDevMeasurementCondition
+  * @param stepCount Number of steps in the process
+  * @param initialState Initial state
+  * @param devMotion Standard deviation for the motion
+  * @param devMeasurement Standard deviation for the measurement
+  * @param devMeasurementLarge Larger standard deviation for the measurement, if applicable
+  * @param smallDevMeasurementCondition Condition when to use the normal measurement deviation
   */
 class NonLinearRandomProcess(
   val stepCount: Int = 100,
@@ -18,8 +18,8 @@ class NonLinearRandomProcess(
   val smallDevMeasurementCondition: Double => Boolean = (_: Double) => true
 ) {
   import NonLinearRandomProcess._
-  def randomFunction(x: Double, k: Int, dev: Double) = nonLinearRandomFunction(x, k, dev)
-  def measurementFunction(x: Double, dev: Double = 0) = measurement(x, dev)
+  def randomFunction(x: Double, k: Int, dev: Double): Double = nonLinearRandomFunction(x, k, dev)
+  def measurementFunction(x: Double, dev: Double = 0): Double = measurement(x, dev)
   val states = new Array[Double](stepCount) // ground truth
   val measurements = new Array[Double](stepCount) // measurements
 
@@ -40,8 +40,8 @@ class NonLinearRandomProcess(
 
   }
 
-  def logLikelihoodSmall(x: Double, z: Double) = logLikelihood(z, measurementFunction(x), devMeasurement)
-  def logLikelihoodLarge(x: Double, z: Double) = logLikelihood(z, measurementFunction(x), devMeasurementLarge)
+  def logLikelihoodSmall(x: Double, z: Double): Double = logLikelihood(z, measurementFunction(x), devMeasurement)
+  def logLikelihoodLarge(x: Double, z: Double): Double = logLikelihood(z, measurementFunction(x), devMeasurementLarge)
 }
 
 class NonLinearRandomProcessGrowing(
@@ -77,7 +77,7 @@ object  NonLinearRandomProcess{
 
   def logLikelihood(z: Double, expected: Double, dev: Double): Double = {
     val d = expected - z
-    -(d*d)/(2*dev)
+    -(d*d)/(2*dev*dev)
   }
 
   def main(args: Array[String]): Unit = {
