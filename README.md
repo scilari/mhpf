@@ -61,3 +61,5 @@ for(t <- 0 until 100){
   } 
 }
 ```
+
+![Scala CI](https://github.com/scilari/mhpf/workflows/Scala%20CI/badge.svg)
