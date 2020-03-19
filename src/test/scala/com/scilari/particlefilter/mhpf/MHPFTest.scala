@@ -124,6 +124,8 @@ class MHPFTest extends FlatSpec{
 
     meanErrorMhpf should be < meanErrorFixed
 
+    assert(false, "Testing github actions")
+
   }
 
   it should "implicitly handle outliers assuming they are detected (often possible)" in {
