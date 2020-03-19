@@ -14,7 +14,7 @@ class MHPF[ParticleT](
   val functionsAndConditions: Seq[(ParticleT => Double, ParticleT => Boolean)]
 ) {
 
-  // Class for keeping track of geometric mean of log-likelihood  and the number of its evaluations
+  // Class for keeping track of geometric mean of log-likelihood and the number of its evaluations
   private class State(val logL: Double = 0.0, val evalCount: Int = 0)
 
   // States for every function-condition pair
@@ -31,13 +31,12 @@ class MHPF[ParticleT](
 
   reset()
 
-
   def weights: Seq[Double] = combinedWeights
 
   def reset(): Unit ={
     states = Array.fill[State](functionsAndConditions.size, particleCount)(new State())
     allWeights = Array.fill[Double](functionsAndConditions.size, particleCount)(invParticleCount)
-    Seq.fill[Double](particleCount)(invParticleCount)
+    combinedWeights = Seq.fill[Double](particleCount)(invParticleCount)
   }
 
   private def reset(fi: Int): Unit ={
@@ -116,10 +115,17 @@ class MHPF[ParticleT](
       particleWeights.product
     }
 
-    // normalizing the final weights
-    val invSum = 1.0/combinedWeights.sum
-    combinedWeights.map{_*invSum}
-
+    val sum = combinedWeights.sum
+    if(sum > 0.0){
+      // normalizing the final weights
+      val invSum = 1.0/sum
+      combinedWeights.map{_*invSum}
+    } else {
+      // Combined weights sums to zero - fixing by resetting the filter
+      println(s"$this\n Normalizing weights failed (sums to zero). Resetting to everything to 1/N.")
+      reset()
+      Seq.fill[Double](particleCount)(invParticleCount)
+    }
   }
 
   override def toString: String = {
@@ -131,13 +137,8 @@ class MHPF[ParticleT](
       val N = particleCount
       s"Condition/likelihood no $fi. Ratio w/ measurements: ${sN.toDouble/N}"
     }
-
     name + condStrings.mkString("\n")
-
   }
-
-  // TODO: effective particle count inside fi
-
 
 }
 
