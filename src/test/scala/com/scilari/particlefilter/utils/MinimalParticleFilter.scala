@@ -7,7 +7,7 @@ class MinimalParticleFilter(val n: Int = 50, val process: NonLinearRandomProcess
 
   var currentMeasurement: Double = 0
 
-  val invN = 1.0/n
+  val invN: Double = 1.0/n
 
   val mhpf = new MHPF[Double](
     n,
@@ -60,9 +60,9 @@ class MinimalParticleFilter(val n: Int = 50, val process: NonLinearRandomProcess
 
 object MinimalParticleFilter{
 
-  def systematicSampling(w: Array[Double]): Array[Int] = {
-    val sampleCount = w.length
-    val cdf = w.map{var s = 0.0; d => {s += d; s}}
+  def systematicSampling(ws: Array[Double]): Array[Int] = {
+    val sampleCount = ws.length
+    val cdf = ws.map{var s = 0.0; w => {s += w; s}}
     val IX = new Array[Int](sampleCount)
     val step = 1.0/sampleCount
     var r0 = scala.util.Random.nextDouble()*step
@@ -77,8 +77,8 @@ object MinimalParticleFilter{
     IX
   }
 
-  def nEff(w: Array[Double]): Double ={
-    1.0/w.map(x => x*x).sum
+  def nEff(ws: Array[Double]): Double ={
+    1.0/ws.map(w => w*w).sum
   }
 
   def runForRMSE(pf: MinimalParticleFilter, pr: NonLinearRandomProcess): Double ={
