@@ -2,7 +2,7 @@ package com.scilari.particlefilter.utils
 
 import com.scilari.particlefilter.mhpf.MHPF
 
-class MinimalParticleFilter(val n: Int = 50, val process: NonLinearRandomProcess, val resampleThreshold: Double = 0.5) {
+class MinimalParticleFilter(val n: Int = 50, val process: Process, val resampleThreshold: Double = 0.5) {
   import MinimalParticleFilter._
 
   var currentMeasurement: Double = 0
@@ -81,7 +81,7 @@ object MinimalParticleFilter{
     1.0/ws.map(w => w*w).sum
   }
 
-  def runForRMSE(pf: MinimalParticleFilter, pr: NonLinearRandomProcess): Double ={
+  def runForRMSE(pf: MinimalParticleFilter, pr: Process): Double ={
     val errors = for(i <- pr.states.indices) yield {
       pf.update(pr.measurements(i), i)
       val s = pr.states(i)
@@ -93,7 +93,7 @@ object MinimalParticleFilter{
   }
 
   // This is the error measure used e.g. in Hol
-  def runForRMSEIgnoringSign(pf: MinimalParticleFilter, pr: NonLinearRandomProcess): Double ={
+  def runForRMSEIgnoringSign(pf: MinimalParticleFilter, pr: Process): Double ={
     val errors = for(i <- pr.states.indices) yield {
       pf.update(pr.measurements(i), i)
       val s = pr.states(i)
