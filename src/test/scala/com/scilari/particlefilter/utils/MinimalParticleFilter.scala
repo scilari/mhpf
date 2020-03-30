@@ -2,6 +2,8 @@ package com.scilari.particlefilter.utils
 
 import com.scilari.particlefilter.mhpf.MHPF
 
+import scala.collection.mutable.ArrayBuffer
+
 class MinimalParticleFilter(val n: Int = 50, val process: Process, val resampleThreshold: Double = 0.5) {
   import MinimalParticleFilter._
 
@@ -52,9 +54,12 @@ class MinimalParticleFilter(val n: Int = 50, val process: Process, val resampleT
   }
 
   def mean(): Double ={
-    weights.zip(particles).map{case (w, p) => w*p}.sum
+    val m = weights.zip(particles).map{case (w, p) => w*p}.sum
+    means += m
+    m
   }
 
+  val means = new ArrayBuffer[Double]()
 
 }
 
