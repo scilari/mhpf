@@ -61,10 +61,8 @@ object Process{
    * The transition model is a bit different on both sides, so identifying the side is possible
    */
   def nonLinearRandomFunctionGrowing(x: Double, k: Int, dev: Double = math.sqrt(10)): Double = {
-    val transitionFactor = if(x < 0) 15 else 25
-    val next = 4*x/9 + transitionFactor*x/(1+x*x)
-      + 0.1 + 8*math.cos(1.2*k) // less random oscillation
-      + math.signum(x)*(k/4) // convergence to either side
+    val transitionFactor = if(x < 0) 20 else 25
+    val next = 4*x/9 + transitionFactor*x/(1+x*x) + 8*math.cos(1.2*k) + math.signum(x)*(k/4) // convergence to either side
     val noise = dev*scala.util.Random.nextGaussian()
     next + noise
   }
