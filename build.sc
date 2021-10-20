@@ -1,6 +1,3 @@
-// This is for VSCode/Metals cupport => After mill, also run this: mill mill.contrib.Bloop/install
-import $ivy.`com.lihaoyi::mill-contrib-bloop:$MILL_VERSION`
-
 import mill._, scalalib._
 
 object mhpf extends ScalaModule {
