@@ -29,7 +29,7 @@ class MHPF[-ParticleT](
   private val invParticleCount = 1.0 / particleCount
 
   // Weight combined from all function-condition pair weights
-  private var combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
+  protected var combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
 
   reset()
 
@@ -57,7 +57,7 @@ class MHPF[-ParticleT](
     combinedWeights
   }
 
-  private def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
+  protected def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
     val (f, c) = functionsAndConditions(fi)
     for (pi <- particles.indices) {
       val p = particles(pi)
@@ -72,7 +72,7 @@ class MHPF[-ParticleT](
     }
   }
 
-  private def normalizeSubsetWeights(fi: Int): Unit = {
+  protected def normalizeSubsetWeights(fi: Int): Unit = {
     // Finding the subset with its indices
     val state = states(fi)
     val (s, si) = state.zipWithIndex.filter { case (d, _) => d.evalCount > 0 }.unzip
@@ -102,14 +102,15 @@ class MHPF[-ParticleT](
         }
       } else {
         // Subset weights sums to zero - fixing by resetting the corresponding weights
-        failInfo =
+        failInfo = Some(
           s"\nNormalizing subset ($fi) weights ($sN) has failed (sums to zero). Resetting to 1/N."
+        )
         reset(fi)
       }
     }
   }
 
-  private def combineWeights(): IndexedSeq[Double] = {
+  protected def combineWeights(): IndexedSeq[Double] = {
     // multiply over function indices
     val combinedWeights: IndexedSeq[Double] = for {
       pi <- 0 until particleCount
@@ -125,14 +126,15 @@ class MHPF[-ParticleT](
       combinedWeights.map { _ * invSum }
     } else {
       // Combined weights sums to zero - fixing by resetting the filter
-      failInfo =
-        (s"\n Normalizing weights has failed (sums to zero). Resetting to everything to 1/N.")
+      failInfo = Some(
+        s"\n Normalizing weights has failed (sums to zero). Resetting to everything to 1/N."
+      )
       reset()
       IndexedSeq.fill[Double](particleCount)(invParticleCount)
     }
   }
 
-  var failInfo: String = ""
+  var failInfo: Option[String] = None
 
   override def toString: String = {
     val name = "Monty Hall Particle filter \n"
@@ -143,8 +145,8 @@ class MHPF[-ParticleT](
       val N = particleCount
       s"Condition/likelihood no $fi. Ratio w/ measurements: ${sN.toDouble / N}"
     }
-    val output = name + condStrings.mkString("\n") + failInfo
-    failInfo = ""
+    val output = name + condStrings.mkString("\n") + failInfo.mkString("")
+    failInfo = None
     output
   }
 
