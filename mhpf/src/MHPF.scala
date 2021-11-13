@@ -11,7 +11,7 @@ package com.scilari.particlefilter.mhpf
   * @tparam ParticleT
   *   Particle parameter type
   */
-class MHPF[ParticleT](
+class MHPF[-ParticleT](
     val particleCount: Int,
     val functionsAndConditions: Seq[(ParticleT => Double, ParticleT => Boolean)]
 ) {
@@ -125,7 +125,8 @@ class MHPF[ParticleT](
       combinedWeights.map { _ * invSum }
     } else {
       // Combined weights sums to zero - fixing by resetting the filter
-      failInfo = (s"\n Normalizing weights has failed (sums to zero). Resetting to everything to 1/N.")
+      failInfo =
+        (s"\n Normalizing weights has failed (sums to zero). Resetting to everything to 1/N.")
       reset()
       Seq.fill[Double](particleCount)(invParticleCount)
     }
