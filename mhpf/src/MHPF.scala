@@ -13,7 +13,7 @@ package com.scilari.particlefilter.mhpf
   */
 class MHPF[-ParticleT](
     val particleCount: Int,
-    val functionsAndConditions: Seq[(ParticleT => Double, ParticleT => Boolean)]
+    val functionsAndConditions: IndexedSeq[(ParticleT => Double, ParticleT => Boolean)]
 ) {
 
   // Class for keeping track of geometric mean of log-likelihood and the number of its evaluations
@@ -29,25 +29,25 @@ class MHPF[-ParticleT](
   private val invParticleCount = 1.0 / particleCount
 
   // Weight combined from all function-condition pair weights
-  private var combinedWeights = Seq.fill[Double](particleCount)(invParticleCount)
+  private var combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
 
   reset()
 
-  def weights: Seq[Double] = combinedWeights
+  def weights: IndexedSeq[Double] = combinedWeights
 
   def reset(): Unit = {
     states = Array.fill[State](functionsAndConditions.size, particleCount)(new State())
     allWeights = Array.fill[Double](functionsAndConditions.size, particleCount)(invParticleCount)
-    combinedWeights = Seq.fill[Double](particleCount)(invParticleCount)
+    combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
   }
 
   private def reset(fi: Int): Unit = {
     states(fi) = Array.fill[State](particleCount)(new State())
     allWeights(fi) = Array.fill[Double](particleCount)(invParticleCount)
-    combinedWeights = Seq.fill[Double](particleCount)(invParticleCount)
+    combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
   }
 
-  def computeWeights(particles: Seq[ParticleT]): Seq[Double] = {
+  def computeWeights(particles: IndexedSeq[ParticleT]): IndexedSeq[Double] = {
     for (fi <- functionsAndConditions.indices) {
       updateLogLikelihoods(fi, particles)
       normalizeSubsetWeights(fi)
@@ -57,7 +57,7 @@ class MHPF[-ParticleT](
     combinedWeights
   }
 
-  private def updateLogLikelihoods(fi: Int, particles: Seq[ParticleT]): Unit = {
+  private def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
     val (f, c) = functionsAndConditions(fi)
     for (pi <- particles.indices) {
       val p = particles(pi)
@@ -109,9 +109,9 @@ class MHPF[-ParticleT](
     }
   }
 
-  private def combineWeights(): Seq[Double] = {
+  private def combineWeights(): IndexedSeq[Double] = {
     // multiply over function indices
-    val combinedWeights: Seq[Double] = for {
+    val combinedWeights: IndexedSeq[Double] = for {
       pi <- 0 until particleCount
     } yield {
       val particleWeights = functionsAndConditions.indices.map { allWeights(_)(pi) }
@@ -128,7 +128,7 @@ class MHPF[-ParticleT](
       failInfo =
         (s"\n Normalizing weights has failed (sums to zero). Resetting to everything to 1/N.")
       reset()
-      Seq.fill[Double](particleCount)(invParticleCount)
+      IndexedSeq.fill[Double](particleCount)(invParticleCount)
     }
   }
 
