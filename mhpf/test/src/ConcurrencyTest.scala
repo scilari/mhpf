@@ -8,11 +8,6 @@ import matchers._
 import scala.util.Random
 import scala.collection.parallel.CollectionConverters._
 
-/** 
- * 
- * 
- * 
-*/
 class ConcurrencyTest extends AnyFlatSpec with should.Matchers {
   def slowLikelihood(d: Double): Double = {
     val randomTime = Random.nextInt(10)
