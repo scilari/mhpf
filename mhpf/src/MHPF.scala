@@ -17,10 +17,10 @@ class MHPF[-ParticleT](
 ) {
 
   // Class for keeping track of geometric mean of log-likelihood and the number of its evaluations
-  private class State(val logL: Double = 0.0, val evalCount: Int = 0)
+  protected final class State(val logL: Double = 0.0, val evalCount: Int = 0)
 
   // States for every function-condition pair
-  private var states: Array[Array[State]] = _
+  protected var states: Array[Array[State]] = _
 
   // Weights for every function-condition pair
   private var allWeights: Array[Array[Double]] = _
@@ -36,25 +36,28 @@ class MHPF[-ParticleT](
   def weights: IndexedSeq[Double] = combinedWeights
 
   def reset(): Unit = {
-    states = Array.fill[State](functionsAndConditions.size, particleCount)(new State())
+    states = Array.fill[State](functionsAndConditions.size, particleCount)(State())
     allWeights = Array.fill[Double](functionsAndConditions.size, particleCount)(invParticleCount)
     combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
   }
 
   private def reset(fi: Int): Unit = {
-    states(fi) = Array.fill[State](particleCount)(new State())
+    states(fi) = Array.fill[State](particleCount)(State())
     allWeights(fi) = Array.fill[Double](particleCount)(invParticleCount)
     combinedWeights = IndexedSeq.fill[Double](particleCount)(invParticleCount)
   }
 
   def computeWeights(particles: IndexedSeq[ParticleT]): IndexedSeq[Double] = {
+    functionwiseUpdates(particles)
+    combinedWeights = combineWeights()
+    combinedWeights
+  }
+
+  protected def functionwiseUpdates(particles: IndexedSeq[ParticleT]): Unit = {
     for (fi <- functionsAndConditions.indices) {
       updateLogLikelihoods(fi, particles)
       normalizeSubsetWeights(fi)
     }
-
-    combinedWeights = combineWeights()
-    combinedWeights
   }
 
   protected def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
@@ -67,10 +70,11 @@ class MHPF[-ParticleT](
         val data = states(fi)(pi)
         val newEvalCount = data.evalCount + 1
         val newLogL = (data.logL * data.evalCount + logL) / newEvalCount
-        states(fi)(pi) = new State(newLogL, newEvalCount)
+        states(fi)(pi) = State(newLogL, newEvalCount)
       }
     }
   }
+
 
   protected def normalizeSubsetWeights(fi: Int): Unit = {
     // Finding the subset with its indices
@@ -149,5 +153,8 @@ class MHPF[-ParticleT](
     failInfo = None
     output
   }
+
+  def par(particleThreadCount: Int = 4): MHPF[ParticleT] =
+    ParallelMHPF(particleCount, functionsAndConditions, particleThreadCount)
 
 }
