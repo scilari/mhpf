@@ -43,7 +43,7 @@ class ConcurrencyTest extends AnyFlatSpec with should.Matchers {
     System.currentTimeMillis - t0
   }
 
-  "MHPF" should "accept parallel input collections and work faster" in {
+  "MHPF" should "work faster on parallel collections" in {
     val sequentialTime = runWithConditions(createLikelihoodsAndConditions, parallel = false)
 
     val parallelTime = runWithConditions(createLikelihoodsAndConditions, parallel = true)

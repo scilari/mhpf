@@ -13,26 +13,16 @@ import scala.collection.parallel.ForkJoinTaskSupport
 class ParallelMHPF[ParticleT](
     particleCount: Int,
     functionsAndConditions: IndexedSeq[(ParticleT => Double, ParticleT => Boolean)],
-    particleThreadCount: Int = 4
+    particleThreadCount: Int = 16
 ) extends MHPF(particleCount, functionsAndConditions) {
 
-  override def functionwiseUpdates(particles: IndexedSeq[ParticleT]): Unit = {
-    val results = functionsAndConditions.indices.map { fi =>
-      Future {
-        updateLogLikelihoods(fi, particles)
-        normalizeSubsetWeights(fi)
-      }
-    }
-
-    Await.ready(Future.sequence(results), Duration.Inf)
-  }
+  private val taskSupport = new ForkJoinTaskSupport(
+    new java.util.concurrent.ForkJoinPool(particleThreadCount)
+  )
 
   override def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
     val indices = particles.indices.par
-    indices.tasksupport = new ForkJoinTaskSupport(
-      new java.util.concurrent.ForkJoinPool(particleThreadCount)
-    )
-
+    indices.tasksupport = taskSupport
     val (f, c) = functionsAndConditions(fi)
     indices.foreach { pi =>
       val p = particles(pi)
@@ -45,7 +35,6 @@ class ParallelMHPF[ParticleT](
         states(fi)(pi) = State(newLogL, newEvalCount)
       }
     }
-
   }
 
 }
