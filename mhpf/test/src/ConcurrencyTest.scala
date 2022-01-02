@@ -10,9 +10,10 @@ import scala.collection.parallel.CollectionConverters._
 
 class ConcurrencyTest extends AnyFlatSpec with should.Matchers {
   def slowLikelihood(d: Double): Double = {
-    val randomTime = Random.nextInt(10)
-    Thread.sleep(0, randomTime)
-    randomTime.toDouble
+    val randomNanos = 5000 + Random.nextInt(5000)
+    val t0 = System.nanoTime
+    while (System.nanoTime - t0 < randomNanos) { /* no-op */ }
+    randomNanos.toDouble
   }
 
   def randomCondition(d: Double): Boolean = Random.nextInt(2) == 0
@@ -28,10 +29,10 @@ class ConcurrencyTest extends AnyFlatSpec with should.Matchers {
       parallel: Boolean
   ): Long = {
     val t0 = System.currentTimeMillis
-    val particleCount = 100
+    val particleCount = 10000
     val mhpf =
       if (parallel)
-        ParallelMHPF(particleCount, likelihoodsAndConditions)
+        ParallelMHPF(particleCount, likelihoodsAndConditions, particleThreadCount = 4)
       else
         MHPF(particleCount, likelihoodsAndConditions)
     val descr = if (parallel) "parallel" else "serial"
