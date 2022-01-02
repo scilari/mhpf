@@ -15,24 +15,26 @@ class ParallelMHPF[ParticleT](
     functionsAndConditions: IndexedSeq[(ParticleT => Double, ParticleT => Boolean)],
     particleThreadCount: Int = 16
 ) extends MHPF(particleCount, functionsAndConditions) {
+  val parallelIndices = (0 until particleCount)
+    .grouped(math.ceil(particleCount.toDouble / particleThreadCount).toInt)
+    .toArray
+    .par
 
-  private val taskSupport = new ForkJoinTaskSupport(
-    new java.util.concurrent.ForkJoinPool(particleThreadCount)
-  )
+  println("Par indices size: " + parallelIndices.size)
 
   override def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
-    val indices = particles.indices.par
-    indices.tasksupport = taskSupport
     val (f, c) = functionsAndConditions(fi)
-    indices.foreach { pi =>
-      val p = particles(pi)
-      // Computing and updating the likelihood values if the corresponding condition is met
-      if (c(p)) {
-        val logL = f(p)
-        val data = states(fi)(pi)
-        val newEvalCount = data.evalCount + 1
-        val newLogL = (data.logL * data.evalCount + logL) / newEvalCount
-        states(fi)(pi) = State(newLogL, newEvalCount)
+    parallelIndices.foreach { ixs =>
+      ixs.foreach { pi =>
+        val p = particles(pi)
+        // Computing and updating the likelihood values if the corresponding condition is met
+        if (c(p)) {
+          val logL = f(p)
+          val data = states(fi)(pi)
+          val newEvalCount = data.evalCount + 1
+          val newLogL = (data.logL * data.evalCount + logL) / newEvalCount
+          states(fi)(pi) = State(newLogL, newEvalCount)
+        }
       }
     }
   }
