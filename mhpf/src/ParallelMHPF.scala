@@ -7,6 +7,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.collection.parallel.ForkJoinTaskSupport
+import java.util.concurrent.ForkJoinPool
 
 /** Parallel version of MHPF. Parallelizes over the likelihood functions and particles.
   */
@@ -15,12 +16,13 @@ class ParallelMHPF[ParticleT](
     functionsAndConditions: IndexedSeq[(ParticleT => Double, ParticleT => Boolean)],
     particleThreadCount: Int = 16
 ) extends MHPF(particleCount, functionsAndConditions) {
+
   val parallelIndices = (0 until particleCount)
     .grouped(math.ceil(particleCount.toDouble / particleThreadCount).toInt)
     .toArray
     .par
 
-  println("Par indices size: " + parallelIndices.size)
+  parallelIndices.tasksupport = ForkJoinTaskSupport(ForkJoinPool(particleThreadCount))
 
   override def updateLogLikelihoods(fi: Int, particles: IndexedSeq[ParticleT]): Unit = {
     val (f, c) = functionsAndConditions(fi)
