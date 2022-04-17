@@ -7,7 +7,8 @@ package com.scilari.particlefilter.mhpf
   *   Number of particles
   * @param functionsAndConditions
   *   Likelihood functions returning likelihoods as logarithmic values and conditions corresponding
-  *   to the functions
+  *   to the functions. Both positive and negative return values from the likelihood functions are
+  *   interpreted as negative exponents. 
   * @tparam ParticleT
   *   Particle parameter type
   */
@@ -66,7 +67,7 @@ class MHPF[-ParticleT](
       val p = particles(pi)
       // Computing and updating the likelihood values if the corresponding condition is met
       if (c(p)) {
-        val logL = f(p)
+        val logL = -math.abs(f(p))
         val data = states(fi)(pi)
         val newEvalCount = data.evalCount + 1
         val newLogL = (data.logL * data.evalCount + logL) / newEvalCount
