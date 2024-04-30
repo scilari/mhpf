@@ -1,4 +1,5 @@
 import mill._, scalalib._
+import mill.scalajslib.ScalaJSModule
 
 object mhpf extends ScalaModule with ScalaJSModule {
   def scalaVersion = "3.3.3"
