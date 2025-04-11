@@ -1,7 +1,7 @@
 import mill._, scalalib._
 
 object mhpf extends ScalaModule {
-  def scalaVersion = "3.3.3"
+  def scalaVersion = "3.3.5"
 
   def ivyDeps = Agg(
     ivy"org.scala-lang.modules::scala-parallel-collections::1.0.4"
